@@ -1,0 +1,71 @@
+---
+title: "BACS HW1 106022113"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+```
+
+
+```{r setup, include=FALSE}
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. 5th element of original list
+```{r customers}
+customers <- read.table(file = "customers.txt", header = TRUE)
+ages <- customers$age
+ages[5]
+```
+## 2. 5th lowest age
+```{r}
+sorted_ages <- sort(ages)
+sorted_ages[5]
+```
+## 3. Extract 5 lowest ages
+```{r}
+sorted_ages[1:5]
+```
+## 4. 5 highest ages
+```{r}
+sorted_ages2 <- sort(ages, decreasing = TRUE)
+sorted_ages2[1:5]
+```
+## 5. Average
+```{r}
+mean(ages)
+```
+## 6. Standard Deviation
+```{r}
+sd(ages)
+```
+## 7. Difference between each age and mean age
+```{r}
+age_diff <- ages-mean(ages)
+```
+## 8. Average for “age_diff”
+```{r}
+mean(age_diff)
+```
+## 9. Visualization : 1.hist 2. Density 3.boxplot+stripchart
+### 1. Histogram
+```{r}
+hist(ages)
+```
+
+### 2. Density Plot
+```{r}
+plot(density(ages))
+```
+
+### 3. Boxplot+Stripchart
+```{r}
+boxplot(ages,horizontal = TRUE)
+stripchart(ages,method = "stack",add = TRUE)
+```

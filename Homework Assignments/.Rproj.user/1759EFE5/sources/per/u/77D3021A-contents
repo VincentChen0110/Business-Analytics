@@ -1,0 +1,26 @@
+#1.
+customers <- read.table(file = "customers.txt", header = TRUE)
+ages <- customers$age
+ages[5]
+#2.
+sorted_ages <- sort(ages)
+unique_ages <- unique(sorted_ages)
+unique_ages[5]
+#3.
+unique_ages[1:5]
+#4.
+sorted_ages2 <- sort(ages, decreasing = TRUE)
+sorted_ages2[1:5]
+#5.
+mean(ages)
+#6.
+sd(ages)
+#7.
+age_diff <- ages-average
+#8.
+mean(age_diff)
+#9.
+hist(ages)
+plot(density(ages))
+boxplot(ages,horizontal = TRUE)
+stripchart(ages,method = "stack",add = TRUE)
