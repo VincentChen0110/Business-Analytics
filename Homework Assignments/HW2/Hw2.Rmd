@@ -10,20 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Problem1
-### (a) 
+### (a) Distribution 2 (left skewed)
 ```{r}
-# Three normally distributed data sets
 d1 <- rnorm(n=500, mean=45, sd=5)
 d2 <- rnorm(n=200, mean=30, sd=5)
 d3 <- rnorm(n=100, mean=15, sd=5)
 
-# Let’s combine them into a single dataset
 d123 <- c(d1, d2, d3)
 
-# Let’s plot the density function of abc
 plot(density(d123), col="blue", lwd=2, main = "Distribution 2")
 
-# Add vertical lines showing mean and median
 abline(v=mean(d123))
 abline(v=median(d123), lty="dashed")
 # mean
@@ -32,7 +28,7 @@ mean(d123)
 median(d123)
 ```
 
-### (b) 
+### (b) Distribution 3 (Normally Distributed)
 ```{r}
 d4 <- rnorm(n=800, mean=40, sd=0)
 plot(density(d4), col="blue", lwd=2, main = "Distribution 3")
@@ -49,11 +45,12 @@ median(d4)
 Ans: Mean is more sensitive to outliers since it is calculated within it. While medians are not distorted by the extreme values of outliers.
 
 ## Problem 2
-### (a)
+### (a) rdata (7 vertical lines)
 ```{r}
 rdata <- rnorm(n=2000, mean=0, sd=1)
 plot(density(rdata), col="blue", lwd=2, main = "rdata")
 sd <- sd(rdata)
+#Add vertical lines
 abline(v=mean(rdata))
 abline(v=mean(rdata)-sd, lty="dashed")
 abline(v=mean(rdata)-2*sd, lty="dashed")
@@ -63,7 +60,7 @@ abline(v=mean(rdata)+2*sd, lty="dashed")
 abline(v=mean(rdata)+3*sd, lty="dashed")
 ```
 
-### (b)
+### (b) Calculate quantiles and sds away from the mean
 ```{r}
 q1 <- quantile(rdata, 0.25)
 q1 # first quantile
@@ -78,7 +75,7 @@ q3 # third quantile
 #sds away from q3
 (q3-mean(rdata))/sd(rdata)
 ```
-### (c)
+### (c) new dataset compare with (b)
 ```{r}
 d5 <- rnorm(n=2000, mean=35, sd=3.5)
 #sds away from q1
@@ -88,7 +85,7 @@ d5 <- rnorm(n=2000, mean=35, sd=3.5)
 ```
 Compared with (b), since the standard deviation is larger, the proportion of the distance will be larger too.
 
-### (d)
+### (d) dataset d123 compare with (b)
 ```{r}
 #sds away from q1
 (quantile(d123, 0.25)-mean(d123))/sd(d123)
@@ -101,10 +98,12 @@ And since the standard deviaiton varies for d123, the proportion of the distance
 ## Problem 3
 ### (a) Formula suggested to calculate bins for histograms
 Ans: The Freedman–Diaconis rule
-
+$$
+h=2\frac{IQR(x)}{\sqrt[3]{n}}
+$$
 Benefits:It can minimize the difference between the area under the empirical probability distribution and the area under the theoretical probability distribution.
 
-### (b)
+### (b) Compute Bin width and number of bins using the formulas
 ```{r}
 rand_data <- rnorm(800, mean=20, sd = 5) 
 ```
@@ -129,6 +128,7 @@ k <- ceiling((max(rand_data) - min(rand_data))/h)
 k
 ```
 #### iii. Freedman-Diaconis' choice
+
 ```{r}
 # Bin Width 
 h <- 2*IQR(rand_data)/n^(1/3)
@@ -137,7 +137,8 @@ h
 k <- ceiling((max(rand_data) - min(rand_data))/h)
 k
 ```
-### (c)
+
+### (c) compute new dataset bins with the three formulas
 ```{r}
 out_data <- c(rand_data, runif(10, min=40, max=60))
 ```
@@ -162,6 +163,7 @@ k <- ceiling((max(out_data) - min(out_data))/h)
 k
 ```
 #### iii. Freedman-Diaconis' choice
+
 ```{r}
 # Bin Width 
 h <- 2*IQR(out_data)/n^(1/3)
@@ -173,5 +175,4 @@ k
 ### (d) Compare formula with least change
 Ans: 
 
-The Sturges’ formula has least change because it's formula depends on the number of datasets. In our case, only 10 outliers are added to the original dataset. 
-Moreover, the number of datasets is taken the log of it. Hence, adding small amounts of outliers will not affect enourmously to this formula. However, if large numbers of outliers are added, then it will definitely affect the formula.
+The Freedman-Diaconis' Formula changed least in the bin width because it depends on the IQR, which is not affected by outliers.
