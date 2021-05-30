@@ -2,7 +2,9 @@
 title: "HW13"
 author: '106022113'
 date: "5/18/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -32,6 +34,7 @@ sctplt <- ggplot(data = cars_log, aes(x = log.acceleration., y=log.mpg., col = f
   geom_point()
 sctplt
 ```
+
 #### iii. Draw two slopes of acceleration vs mpg over scatter plot
 ```{r}
 sctplt+geom_smooth(method = lm,fullrange = TRUE)
@@ -46,9 +49,12 @@ summary(heavy_regr)
 ```
 
 ### c. Use intuition: what do you observe about the light v.s. heavy cars?
+**ANSWER: ** Normally, lighter cars will have better fuel efficiency performance than heavy cars. And we can observe that with mpg vs acceleration, lighter cars occupy mostly of the upper area. Also, the regression mpg intercept of light cars at the y axis is higher than heavy cars.
+
 
 ## Question 2. Using the cars_log data to test moderation
 ### a. Use tuition to state which might be a moderating versus independent variable
+**ANSWER: ** Acceleration might be a moderating variable.
 
 ### b. Use various models to model the possible moderation for log.mpg
 #### i.Report regression without any interaction

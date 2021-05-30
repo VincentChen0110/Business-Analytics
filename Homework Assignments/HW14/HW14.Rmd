@@ -1,0 +1,130 @@
+---
+title: "HW14"
+author: '106022113'
+date: "5/26/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question1. Check whether weight mediates the relationship between cylinders and mpg
+```{r}
+auto <- read.table("auto-data.txt",header=FALSE, na.strings = "?",stringsAsFactors =F)
+names(auto) <- c("mpg","cylinders","displacement","horsepower","weight","acceleration","model_year","origin","car_name")
+cars_log <- with(auto, data.frame(log(mpg),log(cylinders),log(displacement),log(horsepower),log(weight),log(acceleration),model_year,origin))
+```
+
+### a. Try computing the direct effects first
+#### i. Regress log.weight. over log.cylinders and report coefficient
+```{r}
+model1 <- lm(data=cars_log, log.weight.~log.cylinders.)
+summary(model1)
+```
+**ANSWER :** Yes, it has significant effect on weight.
+
+#### ii. Regress log.mpg. over log.weight. and control variables
+```{r}
+model2 <- lm(data= cars_log,log.mpg.~log.weight.+log.acceleration.+model_year+factor(origin))
+summary(model2)
+```
+**ANSWER :** Yes, it has significant effect on mpg
+
+### b. What is the indirect effect of cylinders on mpg?
+```{r}
+model3<- lm(log.mpg. ~log.weight.+log.cylinders.  ,data = cars_log)
+summary(model3)
+indirect_coeff <- model1$coefficients[2]*model2$coefficients[2]
+paste("Indirect coefficients: ",indirect_coeff)
+```
+Since cylinders aren't significant in affecting mpg, it is a indirect factor.
+
+
+### c. Bootstrap the confidence interval of indirect effect of cylinders on mpg
+#### i. What is the 95% CI of the indirect effect of log.cylinders. on log.mpg.
+```{r}
+boot_mediation<-function(model1, model2, dataset) {
+  boot_index<-sample(1:nrow(dataset), replace=TRUE)
+  data_boot<-dataset[boot_index, ]
+  regr1 <-lm(model1, data_boot)
+  regr2 <-lm(model2, data_boot)
+  return(regr1$coefficients[2] * regr2$coefficients[2])
+  }
+set.seed(42)
+intxns<-replicate(2000, boot_mediation(model1, model2, cars_log))
+quantile(intxns, probs=c(0.025, 0.975))
+```
+
+## Question 2. Revisit multicollinearity
+```{r}
+cars_log <- na.omit(cars_log)
+```
+
+### a. Analyze principle components of the four collinear variables
+#### i. Create new data frame of the four log transformed variables with high multicollinearity
+```{r}
+collinear_var <- cars_log[,c("log.cylinders.","log.displacement.","log.horsepower.","log.weight.")]
+```
+They are collinear.
+
+#### ii. How much variance of the four variables explained by their first PC?
+```{r}
+summary(prcomp(collinear_var,scale. = T))
+eigenval <- eigen(cor(collinear_var))$values
+eigenval[1]/sum(eigenval) #same as PCA reports
+```
+
+#### iii. Observe values and valence of first PC eigenvector, what would you call the information captured by this component?
+```{r}
+prcomp(collinear_var,scale. = F)
+```
+The vector that captures the most orthogoanl varaince is the first principle component. While each principe compoent's magnitude is the variance captured by PC relative to average original data dimension.
+
+### b. Revisit regression analysis on cars_log
+#### i. Store the scores of first PC as a new column of cars_log
+```{r}
+cars_log$PC1 <- prcomp(cars_log, scale. = F)$x[,1]
+```
+
+#### ii. Regress mpg over the column wiht PC1 scores
+```{r}
+pc_regr <- lm(data = cars_log, log.mpg. ~ PC1+log.acceleration.+model_year+factor(origin))
+summary(pc_regr)
+```
+
+#### iii. Run regression again but standardized
+```{r}
+cars_log$PC1Scale <- prcomp(collinear_var, scale. = T)$x[,1]
+pc_regr2 <- lm(data = cars_log, log.mpg.~ PC1Scale+log.acceleration.+model_year+factor(origin))
+summary(pc_regr2)
+```
+Estimator of PC after standardized dropped significantly.
+
+## Question 3. 
+```{r}
+security <- read.csv("security_questions.csv")
+```
+
+### a. How much variance did each extracted factor explain?
+```{r}
+summary(prcomp(security,scale. = T))
+```
+
+### b. How many dimensions would you retain?
+#### i. Eigenvalues>=1
+```{r}
+eigen(cor(security))$values
+```
+Three factors have eigenvlaues >= 1
+
+#### ii. Scree plot
+```{r}
+screeplot(prcomp(security,scale. = T),type = "line",main = "Scree Plot")
+```
+Roughly three factors explains most of the variance
+
+### c. Can you interpret what any of the PC means?
+The first PC can explain two-thirds of the whole data varaince, which is also the average score of questions.
