@@ -1,0 +1,87 @@
+---
+title: "HW15"
+author: '106022113'
+date: "6/2/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 4, fig.height = 4, fig.align = "center")
+```
+
+## Question 1. Perform Parallel Analysis
+### a. Show visualization of screeplot of data, noise and eigenvalue = 1 cutoff
+```{r}
+sec <- read.csv("security_questions.csv")
+sec_pca <- prcomp(sec,scale.=TRUE)
+sim_noise_ev <- function(n,p){
+  noise <- data.frame(replicate(p,rnorm(n)))
+  return(eigen(cor(noise))$values)
+} 
+set.seed(42)
+evalues_noise <- replicate(100,sim_noise_ev(dim(sec)[1],dim(sec)[2]))
+evalues_mean <- apply(evalues_noise,1,mean)
+screeplot(sec_pca,type = "lines",col = "blue")
+lines(evalues_mean, type = "b")
+abline(h = 1, lty = "dotted")
+```
+
+As we can see PC1, 2. 3 are above the eigenvalue = 1 cutoff, which is approximately 67% of the total variance, and the simulated noise is closing near the cutoff line.
+
+### b.How many dimensions would you retain if we used Parallel Analysis?
+**ANSWER:  ** PCA1, 2, acquire higher value than the random simulated noise. Hence, it is appropriate for us to chose these two.
+
+## Question 2. Examine factor loadings
+```{r}
+library(psych)
+principal(sec, nfactor =3, rotate = "none", scores = TRUE)
+```
+
+### a.Looking at the first 3 principal components, which components does each item belong?
+**ANSWER: ** Setting threshold to 70 %: 
+PCA1: Q1, 3, 8, 9 ,11, 13, 14, 15, 16, 18 belongs here.
+PCA2: Q4, 12, 17 are close to the threshold, however similar to their score with PCA3: Q5, 10 are significantly higher than the other values, but not close to 0.7
+
+### b.How much of the total variance of the security dataset do the first 3 PCs capture?
+**ANSWER: **According to the summary, the cumulated variance is 67%. 
+
+### c.Which items are less than adequately explained by the first 3 principal components?
+**ANSWER: ** H2 is the communalities(cummulated variance), and Q2 only accumulated 46% percent, which is less than adequate to be explained.
+
+### d. How many measurement items share similar loadings between 2 or more components?
+**ANSWER: ** Three measurements. Q4, 7, 12 acquire high complexity of the component loadings for the variable.
+
+### e. Can you distinguish a ‘meaning’ behind the first principal component from the items that load best upon it? 
+**ANSWER: ** It seems that these questions are more associated with the **security** problems of the site. Referring to the *protection*, *security*, *identity* keywords.
+
+## Question 3. Let’s rotate the our principal component axes to get rotated components
+```{r}
+principal(sec, nfactors = 3, rotate = "varimax", scores = TRUE)
+```
+
+### a. Individually, does each rotated component (RC) explain the same, or different, amount of variance than the corresponding principal components (PCs)?
+**ANSWER: **Individually, they explain the *different* amount of variances.
+
+### b. Together, do the three rotated components explain the same, more, or less cumulative variance as the three principal components combined?
+**ANSWER: **Together, they explain the *same* cumulative variances.
+
+### c. Do those items have more clearly differentiated loadings among rotated components?
+**ANSWER: **Yes, according to the summary, they are more differentiated.
+
+### d. Can you now interpret the “meaning” of the 3 rotated components from the items that load best upon each of them?
+**ANSWER: **
+RC1: Q7, 9, 11, 14, 16  --> *Unauthorized* seems to be the topic of these questions.
+RC2: Q4, 12, 17 --> *Denial* and *Deleted* appeared in these questions, indicating some kind of protection
+RC3: Q5, 8, 10, 15 --> *Transaction* process is mentioned
+
+### e. Change the component to 2
+```{r}
+principal(sec, nfactors = 2, rotate = "varimax", scores = TRUE)
+```
+
+Yes, RC1 will acquire more items upon it and become more significant.
+
+### NOT GRADED : How many compoents should we extract to understand the dataset?
+I believe we should understand three components. If we extract more, the meanings for each PC will decrease and will be harder for us interpret the meanings, while two PCs are a bit few since the questions are diverse and not able to be forced into 2 classes. 
