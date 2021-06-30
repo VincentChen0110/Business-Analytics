@@ -1,0 +1,107 @@
+---
+title: "HW16"
+author: '106022113'
+date: "6/8/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1. Composite Path Models using PLS-PM
+```{r}
+sec <- read.csv("security_data_sem.csv")
+library(seminr)
+```
+### a. Create a PLS path model using SEMinR
+#### i. Measurement Model
+```{r}
+sec_mm <- constructs(
+  composite("TRUST",multi_items("TRST",1:4)), ##1.
+  composite("SEC",multi_items("PSEC",1:4)), ##2.
+  composite("REP",multi_items("PREP",1:4)), ##3.
+  composite("INV",multi_items("PINV",1:3)), ##4.
+  composite("POL",multi_items("PPSS",1:3)),##5.
+  composite("FAML","FAML1"),##6.
+  interaction_term("REP","POL",method = orthogonal)##7.
+)
+```
+
+#### ii. Structural Model
+```{r}
+sec_sm <- relationships(
+  paths(from = c("REP","INV","POL","FAML","REP*POL"),to = "SEC"),
+  paths(from = "SEC",to = "TRUST")
+)
+```
+
+### b. Show Results
+```{r}
+sec_pls <- estimate_pls(data = sec,
+                        measurement_model = sec_mm,
+                        structural_model = sec_sm)
+sec_report <- summary(sec_pls)
+```
+
+#### i.Plot estimated model
+```{r}
+plot(sec_pls)
+```
+
+#### ii. Weights and Loadings of Composites
+```{r}
+sec_report$weights
+```
+```{r}
+sec_report$loadings
+```
+
+#### iii. Regression coefficients of path between factors
+```{r}
+sec_report$paths
+```
+
+### iv. Bootstrapped path coefficients: t-values, 95% CI
+```{r}
+boot_pls <- bootstrap_model(sec_pls,nboot = 1000)
+summary(boot_pls)
+```
+
+## Question 2. Common-Factor Models using CB-SEM
+### a. Create a common factor model using SEMinR
+```{r}
+sec_cf_mm <- constructs(
+  reflective("TRUST",multi_items("TRST",1:4)), ##1.
+  reflective("SEC",multi_items("PSEC",1:4)), ##2.
+  reflective("REP",multi_items("PREP",1:4)), ##3.
+  reflective("INV",multi_items("PINV",1:3)), ##4.
+  reflective("POL",multi_items("PPSS",1:3)),##5.
+  reflective("FAML","FAML1"),##6.
+  interaction_term("REP","POL",method = orthogonal))##7.
+```
+
+### b. Show us the following results in table or figure formats
+```{r}
+sec_cf_pls <- estimate_cbsem(data = sec,
+                             measurement_model = sec_cf_mm,
+                             structural_model = sec_sm)
+```
+
+#### i.Plot a figure of the estimated model 
+```{r}
+plot(sec_cf_pls)
+```
+
+#### ii. Loadings of composites
+```{r}
+sec_cf_report <- summary(sec_cf_pls)
+sec_cf_report$loadings
+```
+
+### iii.Regression coefficients of paths between factors, and their p-values
+```{r}
+sec_cf_report$paths
+```
